@@ -100,20 +100,34 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
     local targetPlayer = QBCore.Functions.GetPlayer(targetPlayer)
 
     if vehicle.cid == targetPlayer.PlayerData.citizenid then
-        if targetPlayer.PlayerData.money["cash"] >= vehicle.depot_price then
+        --if targetPlayer.PlayerData.money["cash"] >= vehicle.depot_price then
+        if targetPlayer.Functions.GetMoney("cash") >= vehicle.depot_price then
             targetPlayer.Functions.RemoveMoney('cash', vehicle.depot_price)
             if vehicle.impound_time <= 0 then
                 removeFromImpound(plate)
                 TriggerClientEvent('cx-impound:client:successfulBuyout', src, plate)
                 TriggerClientEvent('cx-impound:client:addKeys', targetPlayer.PlayerData.source, plate)
+                local phoneNumber = exports["lb-phone"]:GetEquippedPhoneNumber(src)
+                local email = exports["lb-phone"]:GetEmailAddress(phoneNumber)
 
-                TriggerEvent('qb-phone:server:sendNewMailToOffline', targetPlayer.PlayerData.citizenid, {
+--[[                 TriggerEvent('qb-phone:server:sendNewMailToOffline', targetPlayer.PlayerData.citizenid, {
                     sender = "Los Santos Police Department",
                     subject = "Vehicle impound",
                     message = "Dear " .. targetPlayer.PlayerData.charinfo.lastname ..
                         ",<br/><br />Your vehicle just got un-impounded!<br/>Vehicle: " ..
                         vehicleFullName(vehicle.vehicle) .. "<br/>Plate: " .. vehicle.plate ..
                         "<br/>Un-impound cost: <strong>$" .. vehicle.depot_price .. "</strong>!<br/>"
+                }) ]]
+
+                local success, id = exports["lb-phone"]:SendMail({
+                    to = email,
+                    sender = "Los Santos Police Department",
+                    subject = "Vehicle impound",
+                    message = "Dear " .. targetPlayer.PlayerData.charinfo.lastname ..
+                    ",<br/><br />Your vehicle just got un-impounded!<br/>Vehicle: " ..
+                    vehicleFullName(vehicle.vehicle) .. "<br/>Plate: " .. vehicle.plate ..
+                    "<br/>Un-impound cost: <strong>$" .. vehicle.depot_price .. "</strong>!<br/>"
+                    
                 })
 
                 TriggerClientEvent('DoLongHudText', src, 'Vehicle un-impounded successfully', 1)
