@@ -83,13 +83,25 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
     Citizen.Wait(1000)
     TriggerEvent('cx-impound:server:spawnVehicles')
     TriggerClientEvent('DoLongHudText', src, 'Vehicle impounded successfully', 1)
+    local phoneNumber = exports["lb-phone"]:GetEquippedPhoneNumber(src)
+    local email = exports["lb-phone"]:GetEmailAddress(phoneNumber)
 
-    TriggerEvent('qb-phone:server:sendNewMailToOffline', vehicleOwner.citizenid, {
+    --[[ TriggerEvent('qb-phone:server:sendNewMailToOffline', vehicleOwner.citizenid, {
         sender = "Los Santos Police Department",
         subject = "Vehicle impound",
         message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
             "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>"
+    }) ]]
+
+    local success, id = exports["lb-phone"]:SendMail({
+        to = email,
+        sender = "Los Santos Police Department",
+        subject = "Vehicle impound",
+        message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
+            "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>""
+        
     })
+
 end)
 
 RegisterServerEvent('cx-impound:server:buyoutVehicle')
