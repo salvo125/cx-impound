@@ -203,7 +203,8 @@ RegisterNetEvent('cx-impound:client:addKeys', function(vehPlate)
         local closestVeh = GetClosestVehicle(v.x, v.y, v.z, 2.5, 0, 70)
         local plate = QBCore.Functions.GetPlate(closestVeh)
         if plate == vehPlate then
-            TriggerEvent("keys:addNew", plate)
+            --TriggerEvent("keys:addNew", plate)
+            TriggerServerEvent("cx-impound:server:addKeys", plate)
             break
         end
     end

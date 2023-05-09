@@ -172,6 +172,11 @@ AddEventHandler('cx-impound:server:impoundedVehicles', function()
     TriggerClientEvent('cx-impound:client:impoundedVehicles', src, vehicles)
 end)
 
+RegisterNetEvent('cx-impound:server:addKeys', function(plate)
+    local src = source
+    exports["vehicles_keys"]:giveVehicleKeysToPlayerId(src, plate, "owned")
+)
+
 function vehicleOwner(plate)
     local citizen = MySQL.Sync.fetchAll("SELECT * FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
 
