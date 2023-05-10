@@ -15,16 +15,10 @@ local Translations = {
         ["un-impound"] = "Vehicle un-impounded successfully",
     },
     info = {
-        ["door_ringing"] = "Qualcuno sta suonando alla porta!",
-        ["speed"] = "La velocità è %{value}",
     },
     menu = {
-        ["house_options"] = "Opzioni Casa",
-        ["enter_house"] = "Entra a casa",
     },
     log = {
-        ["house_created"] = "Casa Creata:",
-        ["house_address"] = "**Indirizzo**: %{label}\n\n**Prezzo di listino**: %{price}\n\n**Tier**: %{tier}\n\n**Agente di listino**: %{agent}",
     }
 }
 
