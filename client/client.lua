@@ -1,5 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+local pedSpawn = false
+
 local function buyoutMenu(officer, citizen, vehicle, plate, price, impoundTime)
 
     local buyoutMenu = {{
@@ -74,27 +76,32 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 
     TriggerServerEvent('cx-impound:server:spawnVehicles')
 
-    exports['qb-target']:SpawnPed({
-        model = 'cs_casey',
-        coords = Config.PedLocation,
-        minusOne = true,
-        freeze = true,
-        invincible = true,
-        blockevents = true,
-        animDict = 'abigail_mcs_1_concat-0',
-        anim = 'csb_abigail_dual-0',
-        flag = 1,
-        scenario = 'WORLD_HUMAN_AA_COFFEE',
-        target = {
-            options = {{
-                type = "server",
-                event = "cx-impound:server:impoundedVehicles",
-                icon = 'fas fa-car',
-                label = 'Impounded Vehicles'
-            }},
-            distance = 2.5
-        }
-    })
+    Wait(1000)
+    if not pedSpawn then
+        exports['qb-target']:SpawnPed({
+            model = 'cs_casey',
+            coords = Config.PedLocation,
+            minusOne = true,
+            freeze = true,
+            invincible = true,
+            blockevents = true,
+            animDict = 'abigail_mcs_1_concat-0',
+            anim = 'csb_abigail_dual-0',
+            flag = 1,
+            scenario = 'WORLD_HUMAN_AA_COFFEE',
+            target = {
+                options = {{
+                    type = "server",
+                    event = "cx-impound:server:impoundedVehicles",
+                    icon = 'fas fa-car',
+                    label = 'Impounded Vehicles'
+                }},
+                distance = 2.5
+            }
+        })
+        pedSpawn = true
+        Citizen.Trace("Ped Spawnato dal OnPlayerLoaded")
+    end
 end)
 
 RegisterNetEvent('cx-impound:client:impoundedVehicles', function(vehicles)
@@ -115,8 +122,9 @@ RegisterNetEvent('cx-impound:client:checkVehicle', function()
         if #(playerPos - vehiclePos) < 3.0 and not IsPedInAnyVehicle(player) then
             TriggerServerEvent('cx-impound:server:checkVehicle', vehicle, plate)
         else
-            TriggerEvent('DoLongHudText',
-                "You are not allowed to be in vehicle or maybe there is no vehicle close to you!", 2)
+            --TriggerEvent('DoLongHudText',
+            --    "You are not allowed to be in vehicle or maybe there is no vehicle close to you!", 2)
+            TriggerEvent('QBCore:Notify', src, Lang:t("error.no_veh"), "error")
         end
     end
 end)
@@ -168,7 +176,8 @@ RegisterNetEvent('cx-impound:client:buyoutVehicle', function()
     if (distance ~= -1 and distance < 3.0) then
         TriggerServerEvent('cx-impound:server:buyoutVehicle', plate, GetPlayerServerId(closestPlayer))
     else
-        TriggerEvent('DoLongHudText', "There are no citizens near by!", 2)
+        --TriggerEvent('DoLongHudText', "There are no citizens near by!", 2)
+        TriggerEvent('QBCore:Notify', src, Lang:t("error.no_cid"), "error")
     end
 end)
 
@@ -207,5 +216,34 @@ RegisterNetEvent('cx-impound:client:addKeys', function(vehPlate)
             TriggerServerEvent("cx-impound:server:addKeys", plate)
             break
         end
+    end
+end)
+
+-- Thread
+CreateThread(function()
+    if not pedSpawn then
+        exports['qb-target']:SpawnPed({
+            model = 'cs_casey',
+            coords = Config.PedLocation,
+            minusOne = true,
+            freeze = true,
+            invincible = true,
+            blockevents = true,
+            animDict = 'abigail_mcs_1_concat-0',
+            anim = 'csb_abigail_dual-0',
+            flag = 1,
+            scenario = 'WORLD_HUMAN_AA_COFFEE',
+            target = {
+                options = {{
+                    type = "server",
+                    event = "cx-impound:server:impoundedVehicles",
+                    icon = 'fas fa-car',
+                    label = 'Impounded Vehicles'
+                }},
+                distance = 2.5
+            }
+        })
+        pedSpawn = true
+        Citizen.Trace("Ped Spawnato dal Thread")
     end
 end)
