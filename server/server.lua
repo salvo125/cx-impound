@@ -98,7 +98,7 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
         sender = "Los Santos Police Department",
         subject = "Vehicle impound",
         message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
-            "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>""
+            "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>"
         
     })
 
