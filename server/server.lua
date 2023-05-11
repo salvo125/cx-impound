@@ -100,7 +100,7 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
             message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
                 "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>"
         }) ]]
-        Citizen.Trace("ownerSrc: " .. email .. "\n")
+        Citizen.Trace("ownerSrc: " .. tostring(email) .. "\n")
         local success, id = exports["lb-phone"]:SendMail({
             to = email,
             sender = "Los Santos Police Department",
@@ -120,11 +120,14 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
     local player = QBCore.Functions.GetPlayer(src)
     local targetPlayer = QBCore.Functions.GetPlayer(targetPlayer)
 
+    Citizen.Trace("cx-impound:server:buyoutVehicle src: " .. tostring(src) .. " plate: " .. tostring(plate) ..
+     " player:" .. player.PlayerData.charinfo.firstname .. " targetPlayer: " .. targetPlayer.PlayerData.charinfo.firstname .. "\n")
     if vehicle.cid == targetPlayer.PlayerData.citizenid then
         --if targetPlayer.PlayerData.money["cash"] >= vehicle.depot_price then
         if targetPlayer.Functions.GetMoney("cash") >= vehicle.depot_price then
             targetPlayer.Functions.RemoveMoney('cash', vehicle.depot_price)
             if vehicle.impound_time <= 0 then
+                Citizen.Trace("success to cx-impound:client:successfulBuyout \n")
                 removeFromImpound(plate)
                 TriggerClientEvent('cx-impound:client:successfulBuyout', src, plate)
                 TriggerClientEvent('cx-impound:client:addKeys', targetPlayer.PlayerData.source, plate)
@@ -132,7 +135,7 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
                 if targetPlayer.PlayerData.source > 0 then
                     local phoneNumber = exports["lb-phone"]:GetEquippedPhoneNumber(targetPlayer.PlayerData.source)
                     local email = exports["lb-phone"]:GetEmailAddress(phoneNumber)
-                    Citizen.Trace("Mail target: " .. email .. "\n")
+                    Citizen.Trace("Mail target: " .. tostring(email) .. "\n")
     --[[                 TriggerEvent('qb-phone:server:sendNewMailToOffline', targetPlayer.PlayerData.citizenid, {
                         sender = "Los Santos Police Department",
                         subject = "Vehicle impound",
@@ -207,19 +210,22 @@ RegisterNetEvent('cx-impound:server:addKeys', function(plate)
 end)
 
 function vehicleOwner(plate)
-    local citizen = MySQL.Sync.fetchAll("SELECT * FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
+    --local citizen = MySQL.Sync.fetchAll("SELECT * FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
+    local citizen = MySQL.prepare.await("SELECT * FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
 
     return citizen[1]
 end
 
 function impoundedBy(citizenid)
-    local officer = MySQL.Sync.fetchAll("SELECT * FROM players WHERE citizenid=? LIMIT 1;", {citizenid})
+    --local officer = MySQL.Sync.fetchAll("SELECT * FROM players WHERE citizenid=? LIMIT 1;", {citizenid})
+    local officer = MySQL.prepare.await("SELECT * FROM players WHERE citizenid=? LIMIT 1;", {citizenid})
 
     return officer[1]
 end
 
 function isImpounded(plate)
-    local vehicle = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
+    --local vehicle = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
+    local vehicle = MySQL.prepare.await("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
 
     local found
 
@@ -233,7 +239,8 @@ function isImpounded(plate)
 end
 
 function allVehicles()
-    local vehicles = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles;", {})
+    --local vehicles = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles;", {})
+    local vehicles = MySQL.prepare.await("SELECT * FROM impounded_vehicles;", {})
 
     for k, v in pairs(vehicles) do
         vehicles[k].mods = vehicleMods(v.plate)
@@ -243,23 +250,27 @@ function allVehicles()
 end
 
 function vehicle(plate)
-    local vehicle = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
+    --local vehicle = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
+    local vehicle = MySQL.prepare.await("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
 
     return vehicle[1]
 end
 
 function vehicleMods(plate)
-    local vehicleMods = MySQL.Sync.fetchAll("SELECT mods FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
+    --local vehicleMods = MySQL.Sync.fetchAll("SELECT mods FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
+    local vehicleMods = MySQL.prepare.await("SELECT mods FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
 
     return json.decode(vehicleMods[1].mods)
 end
 
 function removeFromImpound(plate)
-    MySQL.Sync.fetchAll("DELETE FROM impounded_vehicles WHERE plate=?;", {plate})
+    --MySQL.Sync.fetchAll("DELETE FROM impounded_vehicles WHERE plate=?;", {plate})
+    MySQL.query("DELETE FROM impounded_vehicles WHERE plate=?;", {plate})
 end
 
 function citizenImpoundedVehicles(cid)
-    local vehicles = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE cid=?;", {cid})
+    --local vehicles = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE cid=?;", {cid})
+    local vehicles = MySQL.prepare.await("SELECT * FROM impounded_vehicles WHERE cid=?;", {cid})
 
     return vehicles
 end
@@ -274,8 +285,9 @@ Citizen.CreateThread(function()
 
         for k, v in pairs(vehicles) do
             if v.impound_time > 0 then
-                MySQL.Sync.fetchAll("UPDATE impounded_vehicles SET impound_time=impound_time-1 WHERE plate=?;",
+                --MySQL.Sync.fetchAll("UPDATE impounded_vehicles SET impound_time=impound_time-1 WHERE plate=?;",
                     {v.plate})
+                MySQL.update("UPDATE impounded_vehicles SET impound_time=impound_time-1 WHERE plate=?;",{v.plate})
             end
         end
         Citizen.Wait(60000)

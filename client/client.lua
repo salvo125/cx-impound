@@ -58,7 +58,7 @@ end
 local function impoundedVehicles(vehicles)
     local allVehicles = {{
         --header = "Impounded Vehicles",
-        header = Lang:t("info.menu_label")
+        header = Lang:t("info.menu_label"),
         isMenuHeader = true
     }}
 
@@ -161,7 +161,6 @@ RegisterNetEvent('cx-impound:client:impoundVehicle', function(vehicle, hash, pla
             --text = 'Depot price without decimals.'
             text = Lang:t("menu.input_dprice_txt")
         }}
-        }}
     })
     if dialog then
         if not dialog then
@@ -187,11 +186,13 @@ RegisterNetEvent('cx-impound:client:setVehProperties', function(net, vehicleData
 end)
 
 RegisterNetEvent('cx-impound:client:buyoutVehicle', function()
-    local closestVehicle = QBCore.Functions.GetClosestVehicle();
+    local closestVehicle = QBCore.Functions.GetClosestVehicle()
     local plate = GetVehicleNumberPlateText(closestVehicle)
     local closestPlayer, distance = QBCore.Functions.GetClosestPlayer()
+    Citizen.Trace("client:buyoutVehicle plate: " .. tostring(plate) .. " closePl: " .. tostring(closestPlayer) .. "\n")
 
     if (distance ~= -1 and distance < 3.0) then
+        Citizen.Trace("chiamta a cx-impound:server:buyoutVehicle \n")
         TriggerServerEvent('cx-impound:server:buyoutVehicle', plate, GetPlayerServerId(closestPlayer))
     else
         --TriggerEvent('DoLongHudText', "There are no citizens near by!", 2)
@@ -200,7 +201,7 @@ RegisterNetEvent('cx-impound:client:buyoutVehicle', function()
 end)
 
 RegisterNetEvent('cx-impound:client:buyOutData', function()
-    local closestVehicle = QBCore.Functions.GetClosestVehicle();
+    local closestVehicle = QBCore.Functions.GetClosestVehicle()
     local plate = GetVehicleNumberPlateText(closestVehicle)
 
     TriggerServerEvent('cx-impound:server:buyOutData', plate)
