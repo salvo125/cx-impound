@@ -89,7 +89,7 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
     --TriggerClientEvent('DoLongHudText', src, 'Vehicle impounded successfully', 1)
     TriggerClientEvent('QBCore:Notify', src, Lang:t("success.impound"), "success")
     local ownerSrc = QBCore.Functions.GetSource(QBCore.Functions.GetPlayerByCitizenId(vehicleOwner))
-    Citizen.Trace("ownerSrc: " .. tostring(ownerSrc))
+    Citizen.Trace("ownerSrc: " .. tostring(ownerSrc) .. "\n")
     if ownerSrc > 0 then
         local phoneNumber = exports["lb-phone"]:GetEquippedPhoneNumber(ownerSrc)
         local email = exports["lb-phone"]:GetEmailAddress(phoneNumber)
@@ -100,7 +100,7 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
             message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
                 "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>"
         }) ]]
-        Citizen.Trace("ownerSrc: " .. email)
+        Citizen.Trace("ownerSrc: " .. email .. "\n")
         local success, id = exports["lb-phone"]:SendMail({
             to = email,
             sender = "Los Santos Police Department",
@@ -128,11 +128,11 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
                 removeFromImpound(plate)
                 TriggerClientEvent('cx-impound:client:successfulBuyout', src, plate)
                 TriggerClientEvent('cx-impound:client:addKeys', targetPlayer.PlayerData.source, plate)
-                Citizen.Trace("Source target: " .. tostring(targetPlayer.PlayerData.source) )
+                Citizen.Trace("Source target: " .. tostring(targetPlayer.PlayerData.source) .. "\n")
                 if targetPlayer.PlayerData.source > 0 then
                     local phoneNumber = exports["lb-phone"]:GetEquippedPhoneNumber(targetPlayer.PlayerData.source)
                     local email = exports["lb-phone"]:GetEmailAddress(phoneNumber)
-                    Citizen.Trace("Mail target: " .. email )
+                    Citizen.Trace("Mail target: " .. email .. "\n")
     --[[                 TriggerEvent('qb-phone:server:sendNewMailToOffline', targetPlayer.PlayerData.citizenid, {
                         sender = "Los Santos Police Department",
                         subject = "Vehicle impound",
@@ -159,7 +159,7 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
             else
                 --TriggerClientEvent('DoLongHudText', src, 'You are not able to un-impound this vehicle. Time left: ' ..
                 --    vehicle.impound_time .. ' minutes', 2)
-                TriggerClientEvent('QBCore:Notify', src, Lang:t("error.remove_key_from", {timelft = vehicle.impound_time}) , "error")
+                TriggerClientEvent('QBCore:Notify', src, Lang:t("error.un_time", {timelft = vehicle.impound_time}) , "error")
             end
         else
             --TriggerClientEvent('DoLongHudText', targetPlayer.PlayerData.source, 'You don\'t have enough cash', 2)

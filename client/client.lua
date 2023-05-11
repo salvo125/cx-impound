@@ -5,37 +5,47 @@ local pedSpawn = false
 local function buyoutMenu(officer, citizen, vehicle, plate, price, impoundTime)
 
     local buyoutMenu = {{
-        header = "Impounded by",
+        --header = "Impounded by",
+        header = Lang:t("menu.buyout_iby"),
         txt = officer,
         isMenuHeader = true
     }, {
-        header = "Owned by",
+        --header = "Owned by",
+        header = Lang:t("menu.buyout_oby"),
         txt = citizen,
         isMenuHeader = true
     }, {
-        header = "Vehicle",
+        --header = "Vehicle",
+        header = Lang:t("menu.buyout_veh"),
         txt = vehicle,
         isMenuHeader = true
     }, {
-        header = "Plate",
+        --header = "Plate",
+        header = Lang:t("menu.buyout_plate"),
         txt = plate,
         isMenuHeader = true
     }, {
-        header = "Buyout price",
+        --header = "Buyout price",
+        header = Lang:t("menu.buyout_boprice"),
         txt = price,
         isMenuHeader = true
     }, {
-        header = "Impound time",
-        txt = impoundTime .. " minutes",
+        --header = "Impound time",
+        header = Lang:t("menu.buyout_time"),
+        --txt = impoundTime .. " minutes",
+        txt = Lang:t("menu.buyout_itime", {itime = impoundTime}),
         isMenuHeader = true
     }, {
-        header = "Un-impound",
-        txt = "Un-impound impounded vehicle!",
+        --header = "Un-impound",
+        header = Lang:t("menu.buyout_uni"),
+        --txt = "Un-impound impounded vehicle!",
+        txt = Lang:t("menu.buyout_uni_txt"),
         params = {
             event = "cx-impound:client:buyoutVehicle"
         }
     }, {
-        header = "⬅ Back",
+        --header = "⬅ Back",
+        header = Lang:t("menu.menu_back"),
         txt = "",
         params = {
             event = "qb-menu:closeMenu"
@@ -47,7 +57,8 @@ end
 
 local function impoundedVehicles(vehicles)
     local allVehicles = {{
-        header = "Impounded Vehicles",
+        --header = "Impounded Vehicles",
+        header = Lang:t("info.menu_label")
         isMenuHeader = true
     }}
 
@@ -62,7 +73,8 @@ local function impoundedVehicles(vehicles)
     end
 
     allVehicles[#allVehicles + 1] = {
-        header = "⬅ Back",
+        --header = "⬅ Back",
+        header = Lang:t("menu.menu_back"),
         txt = "",
         params = {
             event = "qb-menu:closeMenu"
@@ -94,13 +106,14 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
                     type = "server",
                     event = "cx-impound:server:impoundedVehicles",
                     icon = 'fas fa-car',
-                    label = 'Impounded Vehicles'
+                    --label = 'Impounded Vehicles'
+                    label = Lang:t("info.ped_label")
                 }},
                 distance = 2.5
             }
         })
         pedSpawn = true
-        Citizen.Trace("Ped Spawnato dal OnPlayerLoaded")
+        Citizen.Trace("Ped Spawnato dal OnPlayerLoaded \n")
     end
 end)
 
@@ -124,25 +137,30 @@ RegisterNetEvent('cx-impound:client:checkVehicle', function()
         else
             --TriggerEvent('DoLongHudText',
             --    "You are not allowed to be in vehicle or maybe there is no vehicle close to you!", 2)
-            TriggerEvent('QBCore:Notify', src, Lang:t("error.no_veh"), "error")
+            TriggerEvent('QBCore:Notify', Lang:t("error.no_veh"), "error")
         end
     end
 end)
 
 RegisterNetEvent('cx-impound:client:impoundVehicle', function(vehicle, hash, plate, depot_price)
     local dialog = exports['qb-input']:ShowInput({
-        header = "Impound Vehicle",
-        submitText = "Submit",
+        --header = "Impound Vehicle",
+        header = Lang:t("menu.input_header"),
+        --submitText = "Submit",
+        submitText = Lang:t("menu.input_submit"),
         inputs = {{
             type = 'number',
             isRequired = true,
             name = 'impoundTime',
-            text = 'Impound time in minutes.'
+            --text = 'Impound time in minutes.'
+            text = Lang:t("menu.input_time_txt")
         }, {
             type = 'number',
             isRequired = true,
             name = 'depotPrice',
-            text = 'Depot price without decimals.'
+            --text = 'Depot price without decimals.'
+            text = Lang:t("menu.input_dprice_txt")
+        }}
         }}
     })
     if dialog then
@@ -177,7 +195,7 @@ RegisterNetEvent('cx-impound:client:buyoutVehicle', function()
         TriggerServerEvent('cx-impound:server:buyoutVehicle', plate, GetPlayerServerId(closestPlayer))
     else
         --TriggerEvent('DoLongHudText', "There are no citizens near by!", 2)
-        TriggerEvent('QBCore:Notify', src, Lang:t("error.no_cid"), "error")
+        TriggerEvent('QBCore:Notify', Lang:t("error.no_cid"), "error")
     end
 end)
 
@@ -238,12 +256,13 @@ CreateThread(function()
                     type = "server",
                     event = "cx-impound:server:impoundedVehicles",
                     icon = 'fas fa-car',
-                    label = 'Impounded Vehicles'
+                    --label = 'Impounded Vehicles'
+                    label = Lang:t("info.ped_label")
                 }},
                 distance = 2.5
             }
         })
         pedSpawn = true
-        Citizen.Trace("Ped Spawnato dal Thread")
+        Citizen.Trace("Ped Spawnato dal Thread \n")
     end
 end)

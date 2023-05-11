@@ -14,6 +14,8 @@ server_scripts {
 
 shared_script {
     'config.lua',
+    '@qb-core/shared/locale.lua',
+    'locales/en.lua',
     'locales/*.lua'
 }
 

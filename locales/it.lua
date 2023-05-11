@@ -15,8 +15,24 @@ local Translations = {
         ["un-impound"] = "Vehicle un-impounded successfully",
     },
     info = {
+        ["ped_label"] = "Impounded Vehicles",
+        ["menu_label"] = "Impounded Vehicles",
     },
     menu = {
+        ["input_header"] ="Impound Vehicle",
+        ["input_submit"] ="Submit",
+        ["input_time_txt"] ="Impound time in minutes.",
+        ["input_dprice_txt"] ="Depot price without decimals.",
+        ["menu_back"] = "⬅ Back",
+        ["buyout_iby"] = "Impounded by",
+        ["buyout_oby"] = "Owned by",
+        ["buyout_veh"] = "Vehicle",
+        ["buyout_plate"] = "Plate",
+        ["buyout_boprice"] = "Buyout price",
+        ["buyout_time"] = "Impound time",
+        ["buyout_itime"] = "%{itime} minutes",
+        ["buyout_uni"] = "Un-impound",
+        ["buyout_uni_txt"] = "Un-impound impounded vehicle!",
     },
     log = {
     }
