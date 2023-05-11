@@ -213,23 +213,27 @@ function vehicleOwner(plate)
     --local citizen = MySQL.Sync.fetchAll("SELECT * FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
     local citizen = MySQL.prepare.await("SELECT * FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
 
-    return citizen[1]
+    --return citizen[1]
+    return citizen
 end
 
 function impoundedBy(citizenid)
     --local officer = MySQL.Sync.fetchAll("SELECT * FROM players WHERE citizenid=? LIMIT 1;", {citizenid})
     local officer = MySQL.prepare.await("SELECT * FROM players WHERE citizenid=? LIMIT 1;", {citizenid})
 
-    return officer[1]
+    --return officer[1]
+    return officer
 end
 
 function isImpounded(plate)
     --local vehicle = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
-    local vehicle = MySQL.prepare.await("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
+    local vehicle = {}
+    vehicle = MySQL.prepare.await("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
 
     local found
 
-    if vehicle[1] ~= nil then
+    --if vehicle[1] ~= nil then
+    if vehicle ~= nil then
         found = true
     else
         found = false
@@ -240,7 +244,7 @@ end
 
 function allVehicles()
     --local vehicles = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles;", {})
-    local vehicles = MySQL.prepare.await("SELECT * FROM impounded_vehicles;", {})
+    local vehicles = MySQL.query.await("SELECT * FROM impounded_vehicles;", {})
 
     for k, v in pairs(vehicles) do
         vehicles[k].mods = vehicleMods(v.plate)
@@ -253,14 +257,16 @@ function vehicle(plate)
     --local vehicle = MySQL.Sync.fetchAll("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
     local vehicle = MySQL.prepare.await("SELECT * FROM impounded_vehicles WHERE plate=? LIMIT 1;", {plate})
 
-    return vehicle[1]
+    --return vehicle[1]
+    return vehicle
 end
 
 function vehicleMods(plate)
     --local vehicleMods = MySQL.Sync.fetchAll("SELECT mods FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
     local vehicleMods = MySQL.prepare.await("SELECT mods FROM player_vehicles WHERE plate=? LIMIT 1;", {plate})
 
-    return json.decode(vehicleMods[1].mods)
+    --return json.decode(vehicleMods[1].mods)
+    return json.decode(vehicleMods)
 end
 
 function removeFromImpound(plate)
@@ -286,7 +292,7 @@ Citizen.CreateThread(function()
         for k, v in pairs(vehicles) do
             if v.impound_time > 0 then
                 --MySQL.Sync.fetchAll("UPDATE impounded_vehicles SET impound_time=impound_time-1 WHERE plate=?;",
-                    {v.plate})
+                --    {v.plate})
                 MySQL.update("UPDATE impounded_vehicles SET impound_time=impound_time-1 WHERE plate=?;",{v.plate})
             end
         end

@@ -168,6 +168,7 @@ RegisterNetEvent('cx-impound:client:impoundVehicle', function(vehicle, hash, pla
         end
         local closestVehicle = QBCore.Functions.GetClosestVehicle()
         QBCore.Functions.DeleteVehicle(closestVehicle)
+        Wait(2000)
         TriggerServerEvent('cx-impound:server:impoundVehicle', vehicle, hash, plate, dialog.depotPrice,
             dialog.impoundTime)
     end
