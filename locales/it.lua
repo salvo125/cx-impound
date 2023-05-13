@@ -17,6 +17,11 @@ local Translations = {
     info = {
         ["ped_label"] = "Impounded Vehicles",
         ["menu_label"] = "Impounded Vehicles",
+        ["phone_impound_msg"] = "Your vehicle just got impounded \nVehicle: %{pvehicle} \nPlate: %{pplate} \nImpound Cost: %{pdepotPrice} $ \nImpound Time: %{pimpoundTime} minutes\n",
+        ["phone_buyout_msg"] = "Dear %{plastname},\n\nYour vehicle just got un-impounded! \nVehicle: %{pvehicle} \nPlate: %{pplate} \nUn-impound cost: %{pdepot_price} $! \n",
+        ["phone_sender"] = "Los Santos Police Department",
+        ["phone_impound_sub"] = "Vehicle impounded",
+        ["phone_buyout_sub"] = "Vehicle impound bill",
     },
     menu = {
         ["input_header"] ="Impound Vehicle",

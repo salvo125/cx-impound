@@ -67,7 +67,11 @@ local function impoundedVehicles(vehicles)
             header = QBCore.Shared.Vehicles[v.vehicle].name .. " " .. QBCore.Shared.Vehicles[v.vehicle].brand,
             txt = v.plate,
             params = {
-                isServer = true
+                isServer = true,
+                event = "cx-impound:server:menuBuyOut",
+                args = {
+                    plate = v.plate,
+                }
             }
         })
     end

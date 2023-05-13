@@ -58,7 +58,7 @@ AddEventHandler('cx-impound:server:checkVehicle', function(vehicle, plate)
     local src = source
 
     MySQL.Async.fetchAll("SELECT * FROM player_vehicles WHERE plate=?;", {plate}, function(playerVehicle)
-        if playerVehicle[1] then
+        if playerVehicle then
             if not isImpounded(plate) then
                 TriggerClientEvent('cx-impound:client:impoundVehicle', src, vehicle.model, vehicle.hash, plate,
                     vehicle.price)
@@ -103,10 +103,9 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
         Citizen.Trace("ownerSrc: " .. tostring(email) .. "\n")
         local success, id = exports["lb-phone"]:SendMail({
             to = email,
-            sender = "Los Santos Police Department",
-            subject = "Vehicle impound",
-            message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
-                "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>"
+            sender = Lang:t("phone_sender"),
+            subject = Lang:t("phone_impound_sub"),
+            message = Lang:t("phone_impound_msg", {pvehicle = vehicleFullName(vehicle), pplate = plate, pdepotPrice = depotPrice, pimpoundTime = impoundTime})
             
         })
     end
@@ -147,12 +146,9 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
 
                     local success, id = exports["lb-phone"]:SendMail({
                         to = email,
-                        sender = "Los Santos Police Department",
-                        subject = "Vehicle impound",
-                        message = "Dear " .. targetPlayer.PlayerData.charinfo.lastname ..
-                        ",<br/><br />Your vehicle just got un-impounded!<br/>Vehicle: " ..
-                        vehicleFullName(vehicle.vehicle) .. "<br/>Plate: " .. vehicle.plate ..
-                        "<br/>Un-impound cost: <strong>$" .. vehicle.depot_price .. "</strong>!<br/>"
+                        sender = Lang:t("phone_sender"),
+                        subject = Lang:t("phone_buyout_sub"),
+                        message = Lang:t("phone_buyout_msg", {plastname = targetPlayer.PlayerData.charinfo.lastname, pvehicle = vehicleFullName(vehicle.vehicle), pplate = vehicle.plate, pdepot_price = vehicle.depot_price})
                         
                     })
                 end
@@ -207,6 +203,14 @@ end)
 RegisterNetEvent('cx-impound:server:addKeys', function(plate)
     local src = source
     exports["vehicles_keys"]:giveVehicleKeysToPlayerId(src, plate, "owned")
+end)
+
+RegisterNetEvent('cx-impound:server:menuBuyOut', function(data)
+    local plate = data.plate
+    local ownerCid = vehicleOwner(plate)
+    local owner = QBCore.Functions.GetPlayerByCitizenId(ownerCid)
+    local srcOwner = owner.source
+    TriggerEvent('cx-impound:server:buyoutVehicle', function(plate, srcOwner))
 end)
 
 function vehicleOwner(plate)
