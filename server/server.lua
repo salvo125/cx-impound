@@ -80,6 +80,8 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
     local vehicleOwner = vehicleOwner(plate)
     local policeOfficer = QBCore.Functions.GetPlayer(src).PlayerData.citizenid
 
+    print('impounded by src: ' .. tostring(src))
+
     MySQL.Async.insert(
         'INSERT INTO impounded_vehicles (pd_cid, cid, vehicle, hash, plate, depot_price, impound_time) VALUES (?, ?, ?, ?, ?, ?, ?)',
         {policeOfficer, vehicleOwner.citizenid, vehicle, hash, plate, depotPrice, impoundTime})
@@ -99,7 +101,7 @@ AddEventHandler('cx-impound:server:impoundVehicle', function(vehicle, hash, plat
             subject = "Vehicle impound",
             message = "Your vehicle just got impounded</br>Vehicle: " .. vehicleFullName(vehicle) .. "</br>Plate: " .. plate ..
                 "</br>Impound Cost: " .. depotPrice .. "$</br>Impound Time: " .. impoundTime .. " minutes</br>"
-        }) ]]
+        }) --]]
         Citizen.Trace("ownerSrc: " .. tostring(email) .. "\n")
         local success, id = exports["lb-phone"]:SendMail({
             to = email,
@@ -121,6 +123,7 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
 
     Citizen.Trace("cx-impound:server:buyoutVehicle src: " .. tostring(src) .. " plate: " .. tostring(plate) ..
      " player:" .. player.PlayerData.charinfo.firstname .. " targetPlayer: " .. targetPlayer.PlayerData.charinfo.firstname .. "\n")
+
     if vehicle.cid == targetPlayer.PlayerData.citizenid then
         --if targetPlayer.PlayerData.money["cash"] >= vehicle.depot_price then
         if targetPlayer.Functions.GetMoney("cash") >= vehicle.depot_price then
@@ -142,7 +145,7 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
                             ",<br/><br />Your vehicle just got un-impounded!<br/>Vehicle: " ..
                             vehicleFullName(vehicle.vehicle) .. "<br/>Plate: " .. vehicle.plate ..
                             "<br/>Un-impound cost: <strong>$" .. vehicle.depot_price .. "</strong>!<br/>"
-                    }) ]]
+                    }) --]]
 
                     local success, id = exports["lb-phone"]:SendMail({
                         to = email,
@@ -170,6 +173,7 @@ AddEventHandler('cx-impound:server:buyoutVehicle', function(plate, targetPlayer)
         --TriggerClientEvent('DoLongHudText', src, 'This citizen does\'nt match vehicle owner...', 2)
         TriggerClientEvent('QBCore:Notify', src, Lang:t("error.no_cid_match"), "error")
     end
+    
 end)
 
 RegisterServerEvent('cx-impound:server:buyOutData')
@@ -206,11 +210,20 @@ RegisterNetEvent('cx-impound:server:addKeys', function(plate)
 end)
 
 RegisterNetEvent('cx-impound:server:menuBuyOut', function(data)
+    --local plate = data['plate']
     local plate = data.plate
-    local ownerCid = vehicleOwner(plate)
+    print('plate: ' .. plate)
+    local ownerCid = vehicleOwner(plate).citizenid
+    print('ownerCid: ' .. ownerCid)
+    
     local owner = QBCore.Functions.GetPlayerByCitizenId(ownerCid)
-    local srcOwner = owner.source
-    TriggerEvent('cx-impound:server:buyoutVehicle', function(plate, srcOwner))
+    -- print(json.encode(owner))
+
+    --local srcOwner = owner['PlayerData']['source']
+    local srcOwner = owner.PlayerData.source
+    print('srcOwner: ' .. tostring(srcOwner))
+
+    TriggerEvent('cx-impound:server:buyoutVehicle', plate, srcOwner)
 end)
 
 function vehicleOwner(plate)
@@ -293,7 +306,7 @@ Citizen.CreateThread(function()
     while true do
         local vehicles = allVehicles()
 
-        for k, v in pairs(vehicles) do
+        for _, v in pairs(vehicles) do
             if v.impound_time > 0 then
                 --MySQL.Sync.fetchAll("UPDATE impounded_vehicles SET impound_time=impound_time-1 WHERE plate=?;",
                 --    {v.plate})
