@@ -62,18 +62,21 @@ local function impoundedVehicles(vehicles)
         isMenuHeader = true
     }}
 
-    for k, v in pairs(vehicles) do
-        table.insert(allVehicles, {
-            header = QBCore.Shared.Vehicles[v.vehicle].name .. " " .. QBCore.Shared.Vehicles[v.vehicle].brand,
-            txt = v.plate,
-            params = {
-                isServer = true,
-                event = "cx-impound:server:menuBuyOut",
-                args = {
-                    plate = v.plate,
+    if vehicles ~= nil and vehicles then
+        for _, v in pairs(vehicles) do
+            --print(QBCore.Shared.Vehicles[v.vehicle].name .. " " .. QBCore.Shared.Vehicles[v.vehicle].brand .. "\n\n\n")
+            table.insert(allVehicles, {
+                header = QBCore.Shared.Vehicles[v.vehicle].name .. " " .. QBCore.Shared.Vehicles[v.vehicle].brand,
+                txt = v.plate,
+                params = {
+                    isServer = true,
+                    event = "cx-impound:server:menuBuyOut",
+                    args = {
+                        plate = v.plate,
+                    }
                 }
-            }
-        })
+            })
+        end
     end
 
     allVehicles[#allVehicles + 1] = {
@@ -232,7 +235,7 @@ end)
 
 -- adds keys to target player
 RegisterNetEvent('cx-impound:client:addKeys', function(vehPlate)
-    for k, v in pairs(Config.VehicleSpawns) do
+    for _, v in pairs(Config.VehicleSpawns) do
         local closestVeh = GetClosestVehicle(v.x, v.y, v.z, 2.5, 0, 70)
         local plate = QBCore.Functions.GetPlate(closestVeh)
         if plate == vehPlate then
